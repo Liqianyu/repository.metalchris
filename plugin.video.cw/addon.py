@@ -4,7 +4,7 @@
 # Written by MetalChris
 # Released under GPL(v2 or later)
 
-#2023.06.13
+#2024.09.11
 
 import urllib.request, urllib.parse, urllib.error, xbmcplugin, xbmcaddon, xbmcgui, re, sys, os
 import xbmcvfs
@@ -59,8 +59,8 @@ force_views = settings.getSetting(id="force_views")
 
 #533
 def sites():
-	addDir('CW TV Network', 'https://www.cwtv.com/shows/', 633, defaultimage)
-	addDir('CW Seed', 'https://www.cwtv.com/shows/', 633, artbase + 'seed.png', artbase + 'seed.jpg')
+	addDir('CW TV Network', 'https://www.cwtv.com/series/', 633, defaultimage)
+	addDir('CW Seed', 'https://www.cwtv.com/series/', 633, artbase + 'seed.png', artbase + 'seed.jpg')
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 
@@ -75,15 +75,14 @@ def shows(name,url):
 	xbmc.log('COUNT: ' + str(count),level=log_level)
 	for i in range(count):
 		if 'Network' in name:
-			if (jdata['items'][i]['airtime'] == '') or (jdata['items'][i]['airtime'] == 'COMING SOON') or (jdata['items'][i]['schedule'] == 'coming-soon'):
-			#if (jdata['items'][i]['airtime'] == 'STREAM NOW') or (jdata['items'][i]['airtime'] == '') or (jdata['items'][i]['airtime'] == 'COMING SOON') or (jdata['items'][i]['schedule'] == 'coming-soon'):
+			if (jdata['items'][i]['show_type'] == 'cw-seed'):
 				continue
 		elif 'Seed' in name:
 			if (jdata['items'][i]['show_type'] == 'cw-network'):
 				continue
 		title = jdata['items'][i]['title']
 		plot = striphtml(str(jdata['items'][i]['description']))
-		url = 'https://www.cwtv.com/shows/' + jdata['items'][i]['slug']
+		url = 'https://www.cwtv.com/series/' + jdata['items'][i]['slug']
 		image = 'https://images.cwtv.com/images/cw/show-hub/' + jdata['items'][i]['slug'] + '.png'
 		add_directory2(title,url,30,defaultfanart,image,plot)
 		xbmcplugin.setContent(addon_handle, 'episodes')
@@ -137,16 +136,16 @@ def get_stuff(jdata,i):
 
 def get_m3u8(url):
 	QUALITY = settings.getSetting(id="quality")
-	xbmc.log('QUALITY: ' + str(QUALITY),level=log_level)
+	#xbmc.log('QUALITY: ' + str(QUALITY),level=log_level)
 	res = ['360', '540', '720', '1080', '']
-	xbmc.log('RESOLUTION: ' + str(res[int(QUALITY)]),level=log_level)
+	#xbmc.log('RESOLUTION: ' + str(res[int(QUALITY)]),level=log_level)
 	html = get_html(url)
 	#xbmc.log('HTML: ' + str(html))
 	m3u8_url = re.compile('video src="(.+?)" ').findall(str(html))[0]
 	data = get_html(m3u8_url)
 	#xbmc.log('M3U8_DATA: ' + str(data),level=log_level)
 	streams = re.findall(r'https.*m3u8', str(data), flags=re.MULTILINE);links = [];rqs = []
-	xbmc.log('LENGTH: ' + str(len(streams)),level=log_level)
+	#xbmc.log('LENGTH: ' + str(len(streams)),level=log_level)
 	for stream in streams:
 		if res[int(QUALITY)] == '':
 			return m3u8_url
